@@ -1,68 +1,68 @@
-[README.md](https://github.com/user-attachments/files/35510640/README.md)
-# Google Antigravity CLI（agy）を公式ルートで再検証した記録：禁止の経緯とスモークテスト結果
+[Uploading README (1).md…]()
+# Re-testing Google Antigravity CLI (agy) via the official route: background and smoke-test results
 
-English: [README.md](README.md)
+日本語版: [README.ja.md](README.ja.md)
 
-私たちのAIチームではこれまで、Google Antigravity の CLI（agy）の利用を禁止していました。理由は、非公式なラッパー経由で agy を自動操作すると、Google アカウントが停止されるリスクがあると判断したためです。そのため、Gemini は公式の Gemini API 経由だけで使っていました。
+Our AI team had banned the use of Google Antigravity's CLI (`agy`). The reason was the risk that driving it through unofficial wrappers could get the Google account suspended. That premise has changed: `agy` is now Google's own official CLI, and scheduled execution is offered as an official product feature. This document records why we banned it, what changed, and the results of the minimal smoke test we ran on 2026-11-27, limited to facts we actually verified.
 
-その前提が変わりました。agy は Google 自身の公式 CLI になり、スケジュール実行も公式の製品機能として提供されるようになったからです。本稿では、禁止に至った経緯、状況の変化、そして 2026-11-27 に実際に行った最小限の動作確認（スモークテスト）の結果を、確認できた事実の範囲でまとめます。
+## Background: why we had banned agy
 
-## 経緯：なぜ agy を禁止していたのか
+Our team had formally decided to ban the use of `agy`. At the time, automating `agy` through external mechanisms could not clearly be called an officially intended route, and we saw no reason to accept the risk of an account suspension. The account is the foundation of the work, so we judged that caution was reasonable.
 
-チーム内で、agy の利用禁止を正式に決めていました。当時は、agy を外部の仕組みから自動操作する使い方が、公式の想定ルートとは言い切れず、アカウント停止のリスクを取る理由がない、という判断でした。業務の基盤であるアカウントを守るという点で、この判断は当時としては合理的だったと考えています。
+Accordingly, our use of Gemini was restricted to requests through the officially provided Gemini API only.
 
-そのため Gemini は、公式に提供されている Gemini API 経由のリクエストだけに絞って運用してきました。今回の方針変更は、当時の判断が間違っていたからではありません。前提のほうが変わった、という話です。
+This change of direction is not because the earlier decision was wrong. The premise itself changed.
 
-## 何が変わったか
+## What changed
 
-1. **Antigravity 2.0 と公式 CLI 化**
-   2026年5月の Google I/O で発表された Antigravity 2.0 により、スケジュール実行によるバックグラウンド自動化が正式な製品機能になりました。agy 自体も Google が提供する公式 CLI で、非公式ラッパーに依存する必要がなくなりました。
+1. **Antigravity 2.0 and the official CLI**
+   With Antigravity 2.0, announced at Google I/O in May 2026, background automation via scheduled execution became a formal product feature. `agy` itself is a CLI provided by Google, so there is no longer a need to rely on unofficial wrappers.
 
-2. **Gemini アプリの「Tasks」**
-   2026年11月17日に始まった Gemini アプリの「Tasks」（日本も対象国）では、タスクを Google 側のリモートブラウザで実行する仕組みが用意されています。つまり、定時の実務を Google 側で回す受け皿が、公式機能として揃ってきたということです。
+2. **"Tasks" in the Gemini app**
+   The Gemini app's "Tasks", launched on 2026-11-17 (Japan included), runs tasks in a remote browser on Google's side. In other words, an official home for running routine work on a schedule now exists on Google's side as well.
 
-## 2026-11-27 に行った検証
+## The smoke test we ran (2026-11-27)
 
-方針を変える前に、最小限の確認をしました。実施したのは以下の事実のみです。
+Before changing our policy, we ran a minimal check. Only the following was performed:
 
-- **インストーラの確認**
-  公式配布元（antigravity.google）の install.sh を、実行前に全文読みました。バイナリのダウンロード時に SHA512 の照合が行われることを確認してから実行しています。
-- **バージョン**
-  導入された agy は 1.5.18 でした。
-- **認証**
-  個人の Google アカウントでのログインは一切使っていません。APIキーによるヘッドレス構成で、公式手順どおり modelProvider に gemini を指定して接続しました。環境変数 GEMINI_API_KEY だけでは認証できず、modelProvider の指定も必要でした。
-- **実行テスト**
-  空のディレクトリで、簡単な指示を1回だけ実行しました。指示どおりの応答が正確に返り、クォータエラーは出ませんでした。
-- **スケジュール機能**
-  スラッシュコマンド /schedule はこのビルドに実在し、動作することを確認しました（何をスケジュールするか、cron 式を含めて尋ねてきます）。一方 /automation はこの CLI ビルドには無く、デスクトップアプリ側の機能でした。
+- **Installer inspection**
+  We read the official install script from antigravity.google in full before running it, and confirmed that it verifies the downloaded binary against a SHA512 checksum from the official manifest.
+- **Version**
+  The installed `agy` was version 1.5.18.
+- **Authentication**
+  No personal Google account login was used at all. We connected in a headless configuration using an API key, specifying `modelProvider` as `gemini` following the official procedure. Setting only the `GEMINI_API_KEY` environment variable was not enough; the model provider setting was also required.
+- **Execution test**
+  In an empty directory, we ran one simple prompt in print mode. The response came back exactly as instructed, and no quota errors occurred.
+- **Scheduling**
+  The `/schedule` slash command exists in this build and works (it responds asking what to schedule, including cron expressions). `/automation` is not in this CLI build; it is a feature of the desktop app.
 
-## 再現手順の概要
+## Reproduction sketch
 
-プレースホルダを使った大まかな流れです。
+Generic outline only, with placeholders:
 
 ```bash
-# 1. 公式インストーラを取得（実行前に全文を確認）
+# 1. Get the official installer (read it in full before running)
 curl -fsSL https://antigravity.google/cli/install.sh -o install.sh
-less install.sh   # 先に中身を確認
+less install.sh   # inspect first
 bash install.sh
 
-# 2. APIキーによるヘッドレス認証
+# 2. Headless authentication via API key
 export GEMINI_API_KEY="<your-api-key>"
 
-# 3. 簡単な指示を実行
+# 3. Run a trivial prompt
 agy --settings '{"modelProvider": "gemini"}' --print "Reply with exactly: OK"
 ```
 
-## 注意点
+## Caveats
 
-正直に書いておくと、これはスモークテストの成功にすぎません。
+To be clear, this is only a successful smoke test.
 
-- agy を常駐させる場所（手元のPCか、クラウドのVMか）はまだ決まっていません。
-- 利用禁止の決定を正式に見直す手続きは、まだこれからです。今回の検証結果を持って、チーム内で判断します。
-- 本格運用ではなく、まずは小さなタスクから段階的に試す前提です。
+- Where `agy` will run full-time (a local PC or a cloud VM) has not been decided yet.
+- The formal revision of the ban within our team is still to come; we will decide based on these results.
+- This is not full production use; adoption will start with small tasks, step by step.
 
-## 結論
+## Conclusion
 
-公式ルートの範囲内であれば、agy 1.5.18 が公式インストーラから導入でき、APIキーでヘッドレス認証し、指示を実行でき、/schedule コマンドが使えることを確認しました。Gemini アプリの Tasks とあわせて、実務に使える見通しが立ちました。
+Within the official route, we confirmed that `agy` 1.5.18 installs from the official installer, authenticates headlessly with an API key, executes a prompt, and provides a working `/schedule` command. Combined with the Gemini app's Tasks, this gives us a workable outlook for using both in practice.
 
-禁止していたものを、状況が変わったから検証し直す。その記録として、この文書を残します。
+We banned it once; the situation changed, so we tested it again. This document is that record.
