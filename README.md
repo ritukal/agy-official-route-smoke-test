@@ -1,4 +1,4 @@
-[Uploading README (1).md…]()
+
 # Re-testing Google Antigravity CLI (agy) via the official route: background and smoke-test results
 
 日本語版: [README.ja.md](README.ja.md)
